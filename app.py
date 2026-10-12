@@ -1,58 +1,195 @@
-import streamlit as st
-import pandas as pd
 import os
-
+import pandas as pd
+import streamlit as st
 
 # ==========================================================
-# PAGE CONFIGURATION
+# PAGE CONFIG
 # ==========================================================
 
 st.set_page_config(
-    page_title="Student Performance Analyzer",
+    page_title="Student Analytics",
     page_icon="🎓",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
 
 # ==========================================================
-# SIDEBAR NAVIGATION
+# CUSTOM CSS
 # ==========================================================
 
-st.sidebar.title("🎓 Student Analyzer")
+st.markdown(
+    """
+<style>
 
-st.sidebar.write("Navigation")
+.stApp {
+    background-color: #0b1120;
+}
 
-page = st.sidebar.radio(
-    "Go to",
-    [
-        "Student Analysis",
-        "Saved Records"
-    ]
+section[data-testid="stSidebar"] {
+    background-color: #111827;
+    border-right: 1px solid #243044;
+}
+
+.hero-title {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 0px;
+}
+
+.hero-subtitle {
+    font-size: 17px;
+    color: #94a3b8;
+    margin-top: 5px;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 23px;
+    font-weight: 700;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+.dashboard-card {
+    background: linear-gradient(145deg, #172033, #101827);
+    border: 1px solid #273449;
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 125px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.card-icon {
+    font-size: 22px;
+}
+
+.card-label {
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+.card-value {
+    font-size: 30px;
+    font-weight: 800;
+    margin-top: 8px;
+}
+
+.feature-card {
+    background-color: #111827;
+    border: 1px solid #273449;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 10px;
+}
+
+.feature-title {
+    font-size: 15px;
+    color: #94a3b8;
+}
+
+.feature-value {
+    font-size: 21px;
+    font-weight: 700;
+    margin-top: 7px;
+}
+
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+</style>
+""",
+    unsafe_allow_html=True,
 )
+
+
+# ==========================================================
+# SIDEBAR
+# ==========================================================
+
+st.sidebar.markdown(
+    """
+<div style="font-size:27px;font-weight:800;margin-bottom:5px;">
+    🎓 Student
+</div>
+
+<div style="color:#94a3b8;font-size:14px;margin-bottom:25px;">
+    Analytics Dashboard
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
+page = st.sidebar.radio("Navigation", ["🏠 Student Analysis", "📋 Saved Records"])
+
+st.sidebar.markdown("---")
+
+st.sidebar.caption("Student Performance & Attendance Analyzer")
+
+st.sidebar.caption("Built with Python + Streamlit")
+
+
+# ==========================================================
+# SESSION STATE
+# ==========================================================
+
+if "calculated" not in st.session_state:
+    st.session_state.calculated = False
+
+if "student_result" not in st.session_state:
+    st.session_state.student_result = None
 
 
 # ==========================================================
 # STUDENT ANALYSIS PAGE
 # ==========================================================
 
-if page == "Student Analysis":
+if page == "🏠 Student Analysis":
 
-    st.title("🎓 Student Performance & Attendance Analyzer")
+  # ------------------------------------------------------
+  # HERO
+  # ------------------------------------------------------
 
-    st.write(
-        "Analyze student marks, attendance and academic performance."
-    )
+  st.markdown(
+      """
+<div class="hero-title">
+    🎓 Student Analytics
+</div>
 
-    # ------------------------------------------------------
-    # STUDENT INFORMATION
-    # ------------------------------------------------------
+<div class="hero-subtitle">
+    Turn academic data into clear performance insights.
+</div>
+""",
+      unsafe_allow_html=True,
+  )
 
-    st.header("👨‍🎓 Student Information")
+  # ------------------------------------------------------
+  # STUDENT PROFILE
+  # ------------------------------------------------------
 
-    name = st.text_input("Student Name")
+  st.markdown(
+      '<div class="section-title">👤 Student Profile</div>',
+      unsafe_allow_html=True,
+  )
 
-    roll_number = st.text_input("Roll Number")
+  col1, col2, col3 = st.columns(3)
 
+  with col1:
+    name = st.text_input("Student Name", placeholder="Enter student name")
+
+  with col2:
+    roll_number = st.text_input("Roll Number", placeholder="Enter roll number")
+
+  with col3:
     semester = st.selectbox(
         "Semester",
         [
@@ -63,614 +200,503 @@ if page == "Student Analysis":
             "Semester 5",
             "Semester 6",
             "Semester 7",
-            "Semester 8"
-        ]
+            "Semester 8",
+        ],
     )
 
-    # ------------------------------------------------------
-    # SUBJECT MARKS
-    # ------------------------------------------------------
+  # ------------------------------------------------------
+  # ACADEMIC PERFORMANCE
+  # ------------------------------------------------------
 
-    st.header("📚 Subject Marks")
+  st.markdown(
+      '<div class="section-title">📚 Academic Performance</div>',
+      unsafe_allow_html=True,
+  )
 
-    st.write("Enter marks obtained out of 100.")
+  st.caption("Enter marks obtained out of 100.")
 
-    dsa = st.number_input(
-        "DSA",
-        min_value=0,
-        max_value=100,
-        value=0
-    )
+  col1, col2, col3, col4, col5 = st.columns(5)
 
-    daa = st.number_input(
-        "DAA",
-        min_value=0,
-        max_value=100,
-        value=0
-    )
+  with col1:
+    dsa = st.number_input("DSA", min_value=0, max_value=100, value=0)
 
-    java = st.number_input(
-        "Java / OOPs",
-        min_value=0,
-        max_value=100,
-        value=0
-    )
+  with col2:
+    daa = st.number_input("DAA", min_value=0, max_value=100, value=0)
 
-    python = st.number_input(
-        "Python",
-        min_value=0,
-        max_value=100,
-        value=0
-    )
+  with col3:
+    java = st.number_input("Java / OOPs", min_value=0, max_value=100, value=0)
 
+  with col4:
+    python = st.number_input("Python", min_value=0, max_value=100, value=0)
+
+  with col5:
     communication = st.number_input(
-        "Professional Communication",
-        min_value=0,
-        max_value=100,
-        value=0
+        "Communication", min_value=0, max_value=100, value=0
     )
 
-    # ------------------------------------------------------
-    # ATTENDANCE
-    # ------------------------------------------------------
+  # ------------------------------------------------------
+  # ATTENDANCE
+  # ------------------------------------------------------
 
-    st.header("📅 Attendance")
+  st.markdown(
+      '<div class="section-title">📅 Attendance Overview</div>',
+      unsafe_allow_html=True,
+  )
 
-    st.write(
-        "Enter attendance percentage for each subject."
-    )
+  col1, col2, col3, col4, col5 = st.columns(5)
 
+  with col1:
     dsa_attendance = st.number_input(
-        "DSA Attendance (%)",
-        min_value=0.0,
-        max_value=100.0,
-        value=0.0
+        "DSA (%)", min_value=0.0, max_value=100.0, value=0.0
     )
 
+  with col2:
     daa_attendance = st.number_input(
-        "DAA Attendance (%)",
-        min_value=0.0,
-        max_value=100.0,
-        value=0.0
+        "DAA (%)", min_value=0.0, max_value=100.0, value=0.0
     )
 
+  with col3:
     java_attendance = st.number_input(
-        "Java / OOPs Attendance (%)",
-        min_value=0.0,
-        max_value=100.0,
-        value=0.0
+        "Java / OOPs (%)", min_value=0.0, max_value=100.0, value=0.0
     )
 
+  with col4:
     python_attendance = st.number_input(
-        "Python Attendance (%)",
-        min_value=0.0,
-        max_value=100.0,
-        value=0.0
+        "Python (%)", min_value=0.0, max_value=100.0, value=0.0
     )
 
+  with col5:
     communication_attendance = st.number_input(
-        "Communication Attendance (%)",
-        min_value=0.0,
-        max_value=100.0,
-        value=0.0
+        "Communication (%)", min_value=0.0, max_value=100.0, value=0.0
     )
 
-    # ------------------------------------------------------
-    # CALCULATE PERFORMANCE
-    # ------------------------------------------------------
+  # ------------------------------------------------------
+  # ANALYZE BUTTON
+  # ------------------------------------------------------
 
-    if st.button("Calculate Performance"):
+  st.markdown("")
 
-        # --------------------------------------------------
-        # MARKS CALCULATION
-        # --------------------------------------------------
+  analyze = st.button("🚀 ANALYZE PERFORMANCE", type="primary", width="stretch")
 
-        total_marks = (
-            dsa +
-            daa +
-            java +
-            python +
-            communication
-        )
+  # ------------------------------------------------------
+  # CALCULATIONS
+  # ------------------------------------------------------
 
-        percentage = total_marks / 5
+  if analyze:
 
-        # --------------------------------------------------
-        # GRADE CALCULATION
-        # --------------------------------------------------
+    if not name.strip() or not roll_number.strip():
 
-        if percentage >= 90:
-            grade = "A+"
+      st.error("Please enter Student Name and Roll Number.")
 
-        elif percentage >= 80:
-            grade = "A"
+    else:
 
-        elif percentage >= 70:
-            grade = "B"
+      total_marks = dsa + daa + java + python + communication
 
-        elif percentage >= 60:
-            grade = "C"
+      percentage = total_marks / 5
 
-        elif percentage >= 50:
-            grade = "D"
+      overall_attendance = (
+          dsa_attendance
+          + daa_attendance
+          + java_attendance
+          + python_attendance
+          + communication_attendance
+      ) / 5
 
-        else:
-            grade = "F"
+      # ------------------------------------------------
+      # GRADE
+      # ------------------------------------------------
 
-        # --------------------------------------------------
-        # ATTENDANCE CALCULATION
-        # --------------------------------------------------
+      if percentage >= 90:
+        grade = "A+"
 
-        overall_attendance = (
-            dsa_attendance +
-            daa_attendance +
-            java_attendance +
-            python_attendance +
-            communication_attendance
-        ) / 5
+      elif percentage >= 80:
+        grade = "A"
 
-        # --------------------------------------------------
-        # PERFORMANCE RESULT
-        # --------------------------------------------------
+      elif percentage >= 70:
+        grade = "B"
 
-        st.success(
-            "Performance calculated successfully!"
-        )
+      elif percentage >= 60:
+        grade = "C"
 
-        st.subheader("📊 Performance Result")
+      elif percentage >= 50:
+        grade = "D"
 
-        col1, col2, col3 = st.columns(3)
+      else:
+        grade = "F"
 
-        with col1:
+      # ------------------------------------------------
+      # PERFORMANCE LEVEL
+      # ------------------------------------------------
 
-            st.metric(
-                "Total Marks",
-                f"{total_marks}/500"
-            )
+      if percentage >= 80:
+        performance_level = "Excellent 🌟"
 
-        with col2:
+      elif percentage >= 70:
+        performance_level = "Good 👍"
 
-            st.metric(
-                "Percentage",
-                f"{percentage:.2f}%"
-            )
+      elif percentage >= 50:
+        performance_level = "Average 🙂"
 
-        with col3:
+      else:
+        performance_level = "Needs Improvement ⚠️"
 
-            st.metric(
-                "Grade",
-                grade
-            )
+      # ------------------------------------------------
+      # SUBJECT DATA
+      # ------------------------------------------------
 
-        # --------------------------------------------------
-        # ATTENDANCE RESULT
-        # --------------------------------------------------
+      subject_marks = {
+          "DSA": dsa,
+          "DAA": daa,
+          "Java / OOPs": java,
+          "Python": python,
+          "Communication": communication,
+      }
 
-        st.subheader("📅 Attendance Result")
+      subjects = list(subject_marks.keys())
 
-        st.metric(
-            "Overall Attendance",
-            f"{overall_attendance:.2f}%"
-        )
+      marks = list(subject_marks.values())
 
-        # --------------------------------------------------
-        # ATTENDANCE STATUS
-        # --------------------------------------------------
+      attendance = [
+          dsa_attendance,
+          daa_attendance,
+          java_attendance,
+          python_attendance,
+          communication_attendance,
+      ]
 
-        st.write("### Attendance Status")
+      # ------------------------------------------------
+      # BEST / WEAKEST
+      # ------------------------------------------------
 
-        if overall_attendance >= 75:
+      best_subject = max(subject_marks, key=subject_marks.get)
 
-            st.success(
-                "✅ Overall attendance is above 75%."
-            )
+      weakest_subject = min(subject_marks, key=subject_marks.get)
+
+      best_marks = subject_marks[best_subject]
+
+      weakest_marks = subject_marks[weakest_subject]
+
+      # ------------------------------------------------
+      # WEAK SUBJECTS
+      # ------------------------------------------------
+
+      weak_subjects = [
+          subject for subject, mark in subject_marks.items() if mark < 50
+      ]
+
+      # ------------------------------------------------
+      # STORE RESULT
+      # ------------------------------------------------
+
+      st.session_state.student_result = {
+          "Name": name,
+          "Roll Number": roll_number,
+          "Semester": semester,
+          "Total Marks": total_marks,
+          "DSA": dsa,
+          "DAA": daa,
+          "Java / OOPs": java,
+          "Python": python,
+          "Communication": communication,
+          "Percentage": percentage,
+          "Grade": grade,
+          "Attendance": overall_attendance,
+          "Performance Level": performance_level,
+          "Best Subject": best_subject,
+          "Weakest Subject": weakest_subject,
+          "Best Marks": best_marks,
+          "Weakest Marks": weakest_marks,
+          "Weak Subjects": weak_subjects,
+          "Subjects": subjects,
+          "Marks": marks,
+          "Attendance Data": attendance,
+      }
+
+      st.session_state.calculated = True
+
+  # ======================================================
+  # RESULTS
+  # ======================================================
+
+  if st.session_state.calculated:
+
+    result = st.session_state.student_result
+
+    st.markdown("---")
+
+    st.markdown(
+        '<div class="section-title">📊 Performance Dashboard</div>',
+        unsafe_allow_html=True,
+    )
+
+    # --------------------------------------------------
+    # METRIC CARDS
+    # --------------------------------------------------
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+
+      st.markdown(
+          f"""
+<div class="dashboard-card">
+    <div class="card-icon">📊</div>
+    <div class="card-label">Total Marks</div>
+    <div class="card-value">{result["Total Marks"]}/500</div>
+</div>
+""",
+          unsafe_allow_html=True,
+      )
 
-        else:
+    with col2:
 
-            st.warning(
-                "⚠️ Overall attendance is below 75%."
-            )
-
-        # Subject attendance warnings
-
-        if dsa_attendance < 75:
-
-            st.warning(
-                "⚠️ DSA attendance is below 75%."
-            )
-
-        if daa_attendance < 75:
-
-            st.warning(
-                "⚠️ DAA attendance is below 75%."
-            )
-
-        if java_attendance < 75:
-
-            st.warning(
-                "⚠️ Java / OOPs attendance is below 75%."
-            )
-
-        if python_attendance < 75:
-
-            st.warning(
-                "⚠️ Python attendance is below 75%."
-            )
-
-        if communication_attendance < 75:
-
-            st.warning(
-                "⚠️ Communication attendance is below 75%."
-            )
-
-        # --------------------------------------------------
-        # CHART DATA
-        # --------------------------------------------------
-
-        subjects = [
-            "DSA",
-            "DAA",
-            "Java / OOPs",
-            "Python",
-            "Communication"
-        ]
-
-        marks = [
-            dsa,
-            daa,
-            java,
-            python,
-            communication
-        ]
-
-        attendance = [
-            dsa_attendance,
-            daa_attendance,
-            java_attendance,
-            python_attendance,
-            communication_attendance
-        ]
-
-        # --------------------------------------------------
-        # MARKS CHART
-        # --------------------------------------------------
-
-        st.subheader("📊 Subject-wise Performance")
-
-        st.write("### 📚 Marks")
-
-        marks_chart_data = pd.DataFrame(
-            {
-                "Subject": subjects,
-                "Marks": marks
-            }
-        )
-
-        st.bar_chart(
-            marks_chart_data,
-            x="Subject",
-            y="Marks"
-        )
-
-        # --------------------------------------------------
-        # ATTENDANCE CHART
-        # --------------------------------------------------
-
-        st.write("### 📅 Attendance")
-
-        attendance_chart_data = pd.DataFrame(
-            {
-                "Subject": subjects,
-                "Attendance": attendance
-            }
-        )
-
-        st.bar_chart(
-            attendance_chart_data,
-            x="Subject",
-            y="Attendance"
-        )
-
-        # --------------------------------------------------
-        # WEAK SUBJECT DETECTION
-        # --------------------------------------------------
-
-        st.subheader("⚠️ Subject Analysis")
-
-        weak_subjects = []
-
-        if dsa < 50:
-            weak_subjects.append("DSA")
-
-        if daa < 50:
-            weak_subjects.append("DAA")
-
-        if java < 50:
-            weak_subjects.append("Java / OOPs")
-
-        if python < 50:
-            weak_subjects.append("Python")
-
-        if communication < 50:
-            weak_subjects.append("Communication")
-
-        if len(weak_subjects) == 0:
-
-            st.success(
-                "🎉 No weak subjects! Your performance is good."
-            )
-
-        else:
-
-            st.warning(
-                "You need to improve these subjects:"
-            )
-
-            for subject in weak_subjects:
-
-                st.write(
-                    "🔴",
-                    subject
-                )
-
-        # --------------------------------------------------
-        # ACADEMIC STATUS
-        # --------------------------------------------------
-
-        st.subheader("🎓 Academic Status")
-
-        if percentage >= 50 and len(weak_subjects) == 0:
-
-            st.success(
-                "✅ PASS — Excellent academic performance!"
-            )
-
-        elif percentage >= 50:
-
-            st.success(
-                "✅ PASS — But some subjects need improvement."
-            )
-
-        else:
-
-            st.error(
-                "❌ FAIL — Overall performance needs improvement."
-            )
-
-        # --------------------------------------------------
-        # PERFORMANCE LEVEL
-        # --------------------------------------------------
-
-        if percentage >= 80:
-
-            performance_level = "Excellent 🌟"
-
-        elif percentage >= 70:
-
-            performance_level = "Good 👍"
-
-        elif percentage >= 50:
-
-            performance_level = "Average 🙂"
-
-        else:
-
-            performance_level = "Needs Improvement ⚠️"
-
-        st.info(
-            f"📈 Performance Level: {performance_level}"
-        )
-
-        # --------------------------------------------------
-        # PERFORMANCE INSIGHTS
-        # --------------------------------------------------
-
-        st.subheader("🧠 Performance Insights")
-
-        subject_marks = {
-
-            "DSA": dsa,
-
-            "DAA": daa,
-
-            "Java / OOPs": java,
-
-            "Python": python,
-
-            "Communication": communication
-        }
-
-        # Best subject
-
-        best_subject = max(
-            subject_marks,
-            key=subject_marks.get
-        )
-
-        best_marks = subject_marks[best_subject]
-
-        # Weakest subject
-
-        weakest_subject = min(
-            subject_marks,
-            key=subject_marks.get
-        )
-
-        weakest_marks = subject_marks[weakest_subject]
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-
-            st.success(
-                f"🏆 Best Subject: {best_subject} "
-                f"({best_marks}/100)"
-            )
-
-        with col2:
-
-            st.warning(
-                f"⚠️ Needs Improvement: "
-                f"{weakest_subject} "
-                f"({weakest_marks}/100)"
-            )
-
-        # --------------------------------------------------
-        # RECOMMENDATION
-        # --------------------------------------------------
-
-        st.write("### 💡 Recommendation")
-
-        if weakest_marks < 50:
-
-            st.error(
-                f"Focus more on {weakest_subject}. "
-                "Your marks are below 50."
-            )
-
-        elif weakest_marks < 70:
-
-            st.warning(
-                f"You should practice more in "
-                f"{weakest_subject} "
-                "to improve your performance."
-            )
-
-        else:
-
-            st.success(
-                "🎉 Your performance is well balanced "
-                "across all subjects."
-            )
-
-        # --------------------------------------------------
-        # SAVE STUDENT DATA
-        # --------------------------------------------------
-
-        student_data = {
-
-            "Name": name,
-
-            "Roll Number": roll_number,
-
-            "Semester": semester,
-
-            "DSA": dsa,
-
-            "DAA": daa,
-
-            "Java / OOPs": java,
-
-            "Python": python,
-
-            "Communication": communication,
-
-            "Percentage": percentage,
-
-            "Grade": grade,
-
-            "Attendance": overall_attendance,
-
-            "Performance Level": performance_level,
-
-            "Best Subject": best_subject,
-
-            "Weakest Subject": weakest_subject
-        }
-
-        student_df = pd.DataFrame(
-            [student_data]
-        )
-
-        file_name = "student_records.csv"
-
-        if os.path.exists(file_name):
-
-            student_df.to_csv(
-                file_name,
-                mode="a",
-                header=False,
-                index=False
-            )
-
-        else:
-
-            student_df.to_csv(
-                file_name,
-                index=False
-            )
-
-        st.success(
-            "💾 Student record saved successfully!"
-        )
+      st.markdown(
+          f"""
+<div class="dashboard-card">
+    <div class="card-icon">🎯</div>
+    <div class="card-label">Percentage</div>
+    <div class="card-value">{result["Percentage"]:.1f}%</div>
+</div>
+""",
+          unsafe_allow_html=True,
+      )
+
+    with col3:
+
+      st.markdown(
+          f"""
+<div class="dashboard-card">
+    <div class="card-icon">🏆</div>
+    <div class="card-label">Grade</div>
+    <div class="card-value">{result["Grade"]}</div>
+</div>
+""",
+          unsafe_allow_html=True,
+      )
+
+    with col4:
+
+      st.markdown(
+          f"""
+<div class="dashboard-card">
+    <div class="card-icon">📅</div>
+    <div class="card-label">Attendance</div>
+    <div class="card-value">{result["Attendance"]:.1f}%</div>
+</div>
+""",
+          unsafe_allow_html=True,
+      )
+
+    # --------------------------------------------------
+    # STATUS
+    # --------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">🎓 Academic Status</div>',
+        unsafe_allow_html=True,
+    )
+
+    if result["Percentage"] >= 50:
+
+      st.success("✅ PASS — Academic performance is satisfactory.")
+
+    else:
+
+      st.error("❌ FAIL — Academic performance needs improvement.")
+
+    if result["Attendance"] >= 75:
+
+      st.success("🟢 Attendance Status: Safe")
+
+    else:
+
+      st.warning("🟠 Attendance Status: Below 75%")
+
+    # --------------------------------------------------
+    # CHARTS
+    # --------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">📈 Visual Analytics</div>',
+        unsafe_allow_html=True,
+    )
+
+    chart_col1, chart_col2 = st.columns(2)
+
+    with chart_col1:
+
+      st.write("### 📚 Subject Performance")
+
+      marks_df = pd.DataFrame(
+          {"Subject": result["Subjects"], "Marks": result["Marks"]}
+      )
+
+      st.bar_chart(marks_df, x="Subject", y="Marks")
+
+    with chart_col2:
+
+      st.write("### 📅 Attendance")
+
+      attendance_df = pd.DataFrame(
+          {"Subject": result["Subjects"], "Attendance": result["Attendance Data"]}
+      )
+
+      st.bar_chart(attendance_df, x="Subject", y="Attendance")
+
+    # --------------------------------------------------
+    # INSIGHTS
+    # --------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">🧠 Performance Insights</div>',
+        unsafe_allow_html=True,
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+      st.markdown(
+          f'<div class="feature-card">'
+          f'<div class="feature-title">🏆 BEST SUBJECT</div>'
+          f'<div class="feature-value">{result["Best Subject"]} —'
+          f' {result["Best Marks"]}/100</div>'
+          f"</div>",
+          unsafe_allow_html=True,
+      )
+
+    with col2:
+      st.markdown(
+          f'<div class="feature-card">'
+          f'<div class="feature-title">⚠️ NEEDS ATTENTION</div>'
+          f'<div class="feature-value">{result["Weakest Subject"]} —'
+          f' {result["Weakest Marks"]}/100</div>'
+          f"</div>",
+          unsafe_allow_html=True,
+      )
+
+    # --------------------------------------------------
+    # WEAK SUBJECTS
+    # --------------------------------------------------
+
+    if result["Weak Subjects"]:
+      st.warning("Subjects below 50 marks:")
+
+      for subject in result["Weak Subjects"]:
+        st.write(f"🔴 {subject}")
+    else:
+      st.success("🎉 No subject is below 50 marks.")
+
+    # --------------------------------------------------
+    # RECOMMENDATION
+    # --------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">💡 Personalized Recommendation</div>',
+        unsafe_allow_html=True,
+    )
+
+    if result["Weakest Marks"] < 50:
+      st.error(
+          f"Focus strongly on {result['Weakest Subject']}. Your marks are below"
+          " 50."
+      )
+    elif result["Weakest Marks"] < 70:
+      st.warning(
+          f"Spend additional practice time on {result['Weakest Subject']}."
+      )
+    else:
+      st.success("Your performance is balanced across all subjects.")
 
 
 # ==========================================================
 # SAVED RECORDS PAGE
 # ==========================================================
 
-elif page == "Saved Records":
+elif page == "📋 Saved Records":
 
-    st.title("📋 Saved Student Records")
+  st.markdown(
+      """
+<div class="hero-title">
+    📋 Saved Records
+</div>
 
-    st.write(
-        "Search and view previously saved student performance."
-    )
+<div class="hero-subtitle">
+    Manage and search student performance records.
+</div>
+""",
+      unsafe_allow_html=True,
+  )
 
-    if os.path.exists("student_records.csv"):
+  file_name = "student_records.csv"
 
-        records = pd.read_csv(
-            "student_records.csv"
-        )
+  if os.path.exists(file_name):
+    try:
+      records = pd.read_csv(file_name)
 
-        # --------------------------------------------------
-        # SEARCH STUDENT
-        # --------------------------------------------------
+      # ------------------------------------------------
+      # SUMMARY
+      # ------------------------------------------------
 
-        search_roll = st.text_input(
-            "🔎 Search by Roll Number"
-        )
+      total_students = len(records)
 
-        if search_roll:
+      average_percentage = records["Percentage"].mean() if not records.empty else 0
 
-            search_result = records[
-                records["Roll Number"].astype(str)
-                == search_roll
-            ]
+      average_attendance = records["Attendance"].mean() if not records.empty else 0
 
-            if not search_result.empty:
+      col1, col2, col3 = st.columns(3)
 
-                st.success(
-                    "✅ Student found!"
-                )
+      with col1:
+        st.metric("👨‍🎓 Students", total_students)
 
-                st.dataframe(
-                    search_result,
-                    width="stretch"
-                )
+      with col2:
+        st.metric("📊 Avg Percentage", f"{average_percentage:.1f}%")
 
-            else:
+      with col3:
+        st.metric("📅 Avg Attendance", f"{average_attendance:.1f}%")
 
-                st.warning(
-                    "⚠️ Student not found."
-                )
+      # ------------------------------------------------
+      # SEARCH
+      # ------------------------------------------------
 
-        # --------------------------------------------------
-        # ALL RECORDS
-        # --------------------------------------------------
+      st.markdown("---")
 
-        st.subheader(
-            "📊 All Student Records"
-        )
+      st.markdown(
+          '<div class="section-title">🔎 Find Student</div>',
+          unsafe_allow_html=True,
+      )
 
-        st.dataframe(
-            records,
-            width="stretch"
-        )
+      search_roll = st.text_input(
+          "Search using Roll Number", placeholder="Example: 101"
+      )
 
-    else:
+      if search_roll:
+        search_result = records[
+            records["Roll Number"].astype(str).str.strip() == search_roll.strip()
+        ]
 
-        st.info(
-            "No student records available yet."
-        )
-        
+        if not search_result.empty:
+          st.success("✅ Student found!")
+
+          st.dataframe(search_result, width="stretch", hide_index=True)
+
+        else:
+          st.warning("⚠️ Student not found.")
+
+      # ------------------------------------------------
+      # ALL RECORDS
+      # ------------------------------------------------
+
+      st.markdown("---")
+
+      st.markdown(
+          '<div class="section-title">📊 All Student Records</div>',
+          unsafe_allow_html=True,
+      )
+
+      st.dataframe(records, width="stretch", hide_index=True)
+
+    except Exception as error:
+      st.error(f"Unable to read student records file: {error}")
+
+  else:
+    st.info("📂 No student records available yet.")

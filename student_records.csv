@@ -1,2 +1,7 @@
-Name,Roll Number,Semester,DSA,DAA,Java / OOPs,Python,Communication,Percentage,Grade,Attendance,Performance Level
-harsh,1264,Semester 3,98,67,87,76,75,80.6,A,83.4,Excellent 🌟
+Name,Roll Number,Semester,DSA,DAA,Java / OOPs,Python,Communication,Percentage,Grade,Attendance,Performance Level,Best Subject,Weakest Subject
+h,14,Semester 3,76,98,89,75,54,78.4,B,84.2,Good 👍,DAA,Communication
+a,31,Semester 3,24,87,65,56,90,64.4,C,74.4,Average 🙂,Communication,DSA
+r,32,Semester 1,20,25,78,80,60,52.6,D,62.0,Average 🙂,Python,DSA
+r,32,Semester 1,18,25,78,80,60,52.2,D,62.0,Average 🙂,Python,DSA
+r,32,Semester 1,0,25,78,80,60,48.6,F,62.0,Needs Improvement ⚠️,Python,DSA
+Test Student,TEST101,Semester 3,98,78,86,78,90,86.0,A,85.0,Excellent 🌟,DSA,DAA
